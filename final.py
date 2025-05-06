@@ -46,9 +46,10 @@ def postprocess_text(preds, labels):
     labels = [[label.strip()] for label in labels]
     return preds, labels
 
+preds, labels = postprocess_text('en', 'fr')
+
 #compute translation metrics
 def compute_metrics(eval_preds):
-
     preds, labels = eval_preds
 
     if isinstance(preds, tuple):
@@ -65,4 +66,8 @@ def compute_metrics(eval_preds):
     result = {k: round(v, 4) for k, v in result.items()}
 
     return result
+
+results = compute_metrics(preds, labels)
+
+print(results)
 
