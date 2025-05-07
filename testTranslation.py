@@ -68,47 +68,154 @@ def compareLangs(lang1, lang2, inputString):
 
     return translations, charAccs, sentenceAccs
 
-def testLatinLanguages(inputString):
-    """Tests latin languages against eachother"""
+def testIndoEuropeanLanguages(inputString):
+    """
+    Tests top 3 most spoken Indo-European languages against eachother, by number of native speakers
+    English, Hindi, and Spanish
+    """
     avgCharAccs = []
     avgSentenceAccs = []
   
-    #between spanish and french
-    print("Testing Spanish and French...")
-    start = translate(inputString, 'es') #translate to spanish to start
+    #between English and Hindi
+    print("Testing English and Hindi...")
+    start = translate(inputString, 'en') #translate to spanish to start
 
-    translations, charAccs, sentenceAccs = compareLangs('es', 'fr', inputString)
+    translations, charAccs, sentenceAccs = compareLangs('en', 'hi', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
-    #between italian and spanish
-    print("Testing Italian and Spanish...")
-    start = translate(inputString, 'es') #translate to italian to start
+    #between Hindi and Spanish
+    print("Testing Hindi and Spanish...")
+    start = translate(inputString, 'hi') #translate to spanish to start
 
-    translations, charAccs, sentenceAccs = compareLangs('it', 'es', inputString)
+    translations, charAccs, sentenceAccs = compareLangs('hi', 'es', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
-    #between french and italian
-    print("Testing French and Italian...")
-    start = translate(inputString, 'fr') #translate to french to start
+    #between Spanish and English
+    print("Testing Spanish and English...")
+    start = translate(inputString, 'es') #translate to french to start
 
-    translations, charAccs, sentenceAccs = compareLangs('fr', 'it', inputString)
+    translations, charAccs, sentenceAccs = compareLangs('es', 'en', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
     # Display Results
-    results = {'Between languages': ['Spanish and French',  'Italian and Spanish', 'French and Italian'],
+    results = {'Between languages': ['English and Hindi',  'Hindi and Spanish', 'Spanish and English'],
                'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
     df = pd.DataFrame(data=results)
     print(df)
 
     return df
 
-testLatinLanguages("Life is like a box of chocolates")
+def testSinoTibetanLanguages(inputString):
+    """
+    Tests top 3 most spoken Sino-Tibetan languages available in this model against eachother, by number
+    of native speakers: Simplified Chinese, and Yue Chinese, and Burmese
+
+    *NOTE: Mandarin Chinese is most commonly spoken but simplified chinese is the most common writing system
+    for chinese speakers and this is a text based expiriment
+    *NOTE: Several more commonly spoken Sino-Tibetan languages needed to be skipped because they were not
+    available in this model, including Wu Chinese, Jinyu Chinese, and Min Nan Chinese
+    """
+    avgCharAccs = []
+    avgSentenceAccs = []
+  
+    #between Simplified and Yue Chinese
+    print("Testing Simplified and Yue Chinese...")
+    start = translate(inputString, 'zh') #translate to Simplified Chinese to start
+
+    translations, charAccs, sentenceAccs = compareLangs('zh', 'yue', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Yue Chinese and Burmese
+    print("Testing Yue Chinese and Burmese...")
+    start = translate(inputString, 'yue') #translate to Yue Chinese to start
+
+    translations, charAccs, sentenceAccs = compareLangs('yue', 'my', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Burmese and Simplified Chinese
+    print("Testing Burmese and Simplified Chinese...")
+    start = translate(inputString, 'my') #translate to Burmese to start
+
+    translations, charAccs, sentenceAccs = compareLangs('my', 'zh', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    # Display Results
+    results = {'Between languages': ['Simplified and Yue Chinese',  'Yue Chinese and Burmese', 'Burmese and Simplified Chinese'],
+               'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
+    df = pd.DataFrame(data=results)
+    print(df)
+
+    return df
+
+def testAfroAsiaticLanguages(inputString):
+    """
+    Tests top 3 most spoken Afro-Asiatic languages available in this model against eachother, by number
+    of native speakers: Arabic, and Egyptian Arabic, and Hausa
+
+    *NOTE: Standard Arabic (MSA), the most common form of written arabic is not available in this dataset.
+    Arabic is the most commonly spoken, but it is a macrolanguage which encompasses all arabic languages,
+    including Egyptian Arabic
+    """
+    avgCharAccs = []
+    avgSentenceAccs = []
+  
+    #between Arabic and Egyptian Arabic
+    print("Testing Arabic and Egyptian Arabic...")
+    start = translate(inputString, 'ar') #translate to Arabic to start
+
+    translations, charAccs, sentenceAccs = compareLangs('ar', 'arz', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Egyptian Arabic and Hausa
+    print("Testing Egyptian Arabic and Hausa...")
+    start = translate(inputString, 'arz') #translate to Egyptian Arabic to start
+
+    translations, charAccs, sentenceAccs = compareLangs('arz', 'ha', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Hausa and Arabic
+    print("Testing Hausa and Arabic...")
+    start = translate(inputString, 'ha') #translate to Hausa to start
+
+    translations, charAccs, sentenceAccs = compareLangs('ha', 'ar', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    # Display Results
+    results = {'Between languages': ['Arabic and Egyptian Arabic',  'Egyptian Arabic and Hausa', 'Hausa and Arabic'],
+               'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
+    df = pd.DataFrame(data=results)
+    print(df)
+
+    return df
+
+
+testIndoEuropeanLanguages("Life is like a box of chocolates")
+testSinoTibetanLanguages("Life is like a box of chocolates")
+testAfroAsiaticLanguages("Life is like a box of chocolates")
