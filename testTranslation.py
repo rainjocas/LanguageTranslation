@@ -1,3 +1,4 @@
+import torch
 from transformers import AutoTokenizer, M2M100ForConditionalGeneration
 from datasets import load_dataset
 from transformers import AutoTokenizer
@@ -6,7 +7,11 @@ import pandas as pd
 from torch import Tensor
 from sentence_transformers import SentenceTransformer, util #Semantic similarity
 from thefuzz import fuzz #Character level similarity 
+import matplotlib.pyplot as plt
 
+device = 'mps' if torch.backends.mps.is_available() else 'cpu'
+
+#load pretrained model
 model = M2M100ForConditionalGeneration.from_pretrained("facebook/nllb-200-distilled-600M")
 tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
 
@@ -22,7 +27,6 @@ def translate(inputString, outputLang):
     # inputString = str(outputLang) + " " + inputString
     encoded_hi = tokenizer(inputString, return_tensors="pt")
     generated_tokens = model.generate(**encoded_hi, forced_bos_token_id=tokenizer.convert_tokens_to_ids(outputLang))
-    print(tokenizer.batch_decode(generated_tokens, skip_special_tokens=True), outputLang)
     return tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
 
 def compareChars(string1, string2):
@@ -77,6 +81,17 @@ def compareLangs(lang1, lang2, inputString):
 
     return translations, charAccs, sentenceAccs
 
+def plotResults(accuracies):
+    """
+    Plots how the model performed during training (Edited from Slides)
+    """
+    nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    plt.figure(figsize=(13,3))
+    plt.subplot(121)
+    plt.title('Semantic accuracy over Translations')
+    plt.plot(nums, accuracies)
+    plt.show()
+
 def testIndoEuropeanLanguages(inputString):
     """
     Tests top 3 most spoken Indo-European languages against eachother, by number of native speakers
@@ -90,11 +105,14 @@ def testIndoEuropeanLanguages(inputString):
     start = translate(inputString, 'eng_Latn') #translate to spanish to start
 
     translations, charAccs, sentenceAccs = compareLangs('eng_Latn', 'hin_Deva', start)
+
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -108,6 +126,8 @@ def testIndoEuropeanLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -121,6 +141,8 @@ def testIndoEuropeanLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -157,6 +179,8 @@ def testSinoTibetanLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -170,6 +194,8 @@ def testSinoTibetanLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -183,6 +209,8 @@ def testSinoTibetanLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -216,6 +244,8 @@ def testAfroAsiaticLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -229,6 +259,8 @@ def testAfroAsiaticLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -242,6 +274,8 @@ def testAfroAsiaticLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
     print(translations[9])
     print(translations[10])
 
@@ -264,36 +298,54 @@ def testLanguageGroups(inputString):
 
     #between English and Simplified Chinese
     print("Testing English and Simplified Chinese...")
-    start = translate(inputString, 'en') #translate to English to start
+    start = translate(inputString, 'eng_Latn') #translate to English to start
 
-    translations, charAccs, sentenceAccs = compareLangs('en', 'zh', start)
+    translations, charAccs, sentenceAccs = compareLangs('eng_Latn', 'zho_Hans', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
+
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
 
     #between Simplified Chinese and Simplified Chinese
     print("Testing Simplified Chinese and Arabic...")
-    start = translate(inputString, 'zh') #translate to Simplified Chinese to start
+    start = translate(inputString, 'zho_Hans') #translate to Simplified Chinese to start
 
-    translations, charAccs, sentenceAccs = compareLangs('zh', 'ar', start)
+    translations, charAccs, sentenceAccs = compareLangs('zho_Hans', 'arb_Arab', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
+
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
 
     #between Arabic and English
     print("Testing Arabic and English...")
-    start = translate(inputString, 'ar') #translate to Arabic to start
+    start = translate(inputString, 'arb_Arab') #translate to Arabic to start
 
-    translations, charAccs, sentenceAccs = compareLangs('ar', 'en', start)
+    translations, charAccs, sentenceAccs = compareLangs('arb_Arab', 'eng_Latn', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
+
+    #plot accuracy over translations
+    plotResults(sentenceAccs)
+
+    # Display Results
+    results = {'Between languages': ['English and Simplified Chinese',  'Simplified Chinese and Arabic', 'Arabic and English'],
+               'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
+    df = pd.DataFrame(data=results)
+    print(df)
+    print(translations)
+
+    return df
 
 
 testIndoEuropeanLanguages("Life is like a box of chocolates")
 testSinoTibetanLanguages("Life is like a box of chocolates")
 testAfroAsiaticLanguages("Life is like a box of chocolates")
-# testLanguageGroups("Life is like a box of chocolates")
+testLanguageGroups("Life is like a box of chocolates")
