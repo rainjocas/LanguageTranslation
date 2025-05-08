@@ -12,9 +12,14 @@ tokenizer = AutoTokenizer.from_pretrained("facebook/m2m100_418M")
 
 def translate(inputString, outputLang):
     """NOTE: ADD DOCUMENTATION"""
-    model_inputs = tokenizer(inputString, return_tensors="pt")
-    translation = model.generate(**model_inputs, forced_bos_token_id=tokenizer.get_lang_id(outputLang))
-    return tokenizer.batch_decode(translation, skip_special_tokens=True)
+    # model_inputs = tokenizer(inputString, return_tensors="pt")
+    # translation = model.generate(**model_inputs, forced_bos_token_id=tokenizer.get_lang_id(outputLang))
+    # return tokenizer.batch_decode(translation, skip_special_tokens=True)
+
+    encoded_hi = tokenizer(inputString, return_tensors="pt")
+    generated_tokens = model.generate(**encoded_hi, forced_bos_token_id=tokenizer.get_lang_id(outputLang))
+    # print(tokenizer.batch_decode(generated_tokens, skip_special_tokens=True))
+    return tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
 
 def compareChars(string1, string2):
     """
@@ -39,6 +44,7 @@ def compareSentences(string1, string2):
 def compareLangs(lang1, lang2, inputString):
     """NOTE: ADD DOCUMENTATION"""
 
+    print(lang1, lang2)
     charAccs = []
     sentenceAccs = []
     translation1 = translate(inputString, lang2)
@@ -48,7 +54,8 @@ def compareLangs(lang1, lang2, inputString):
 
     while len(translations) < 11:
         #to language 2
-        translation = translate(translations[len(translations) - 1], lang1)
+        translation = translate(translations[len(translations) - 1], lang2)
+        print(translation, lang2)
         translations.append(translation)
 
         charAcc = compareChars(translations[len(translations) - 3], translation)
@@ -57,11 +64,12 @@ def compareLangs(lang1, lang2, inputString):
         sentenceAccs.append(sentenceAcc)
 
         #to language 1
-        translation = translate(translations[len(translations) - 1], lang2)
+        translation = translate(translations[len(translations) - 1], lang1)
+        print(translation, lang1)
         translations.append(translation)
 
         charAcc = compareChars(translations[len(translations) - 3], translation)
-        sentenceAcc = compareSentences(translations[len(translations) - 3], translation)
+        sentenceAcc = compareSentences(translations[len(translations) - 3 ], translation)
         charAccs.append(charAcc)
         sentenceAccs.append(sentenceAcc)
 
@@ -117,45 +125,56 @@ def testIndoEuropeanLanguages(inputString):
 def testSinoTibetanLanguages(inputString):
     """
     Tests top 3 most spoken Sino-Tibetan languages available in this model against eachother, by number
-    of native speakers: Simplified Chinese, and Yue Chinese, and Burmese
+    of native speakers: Simplified Chinese, Burmese, and Tibetan
 
     *NOTE: Mandarin Chinese is most commonly spoken but simplified chinese is the most common writing system
     for chinese speakers and this is a text based expiriment
     *NOTE: Several more commonly spoken Sino-Tibetan languages needed to be skipped because they were not
-    available in this model, including Wu Chinese, Jinyu Chinese, and Min Nan Chinese
+    available in this model, including Wu Chinese, Jinyu Chinese, and Min Nan Chinese. Yue Chinese is
+    supposedly available in this model, but the translation key did not work, so it was also skipped. This
+    has been flagged as a bug.
     """
     avgCharAccs = []
     avgSentenceAccs = []
   
-    #between Simplified and Yue Chinese
-    print("Testing Simplified and Yue Chinese...")
+    #between Simplified Chinese and Burmese
+    print("Testing Simplified Chinese and Burmese...")
     start = translate(inputString, 'zh') #translate to Simplified Chinese to start
 
-    translations, charAccs, sentenceAccs = compareLangs('zh', 'yue', start)
+    translations, charAccs, sentenceAccs = compareLangs('zh', 'my', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
-    #between Yue Chinese and Burmese
-    print("Testing Yue Chinese and Burmese...")
-    start = translate(inputString, 'yue') #translate to Yue Chinese to start
+    print(translations[9])
+    print(translations[10])
 
-    translations, charAccs, sentenceAccs = compareLangs('yue', 'my', start)
-    avgCharAcc = np.mean(charAccs)
-    avgSentenceAcc = np.mean(sentenceAccs)
-    avgCharAccs.append(avgCharAcc)
-    avgSentenceAccs.append(avgSentenceAcc)
-
-    #between Burmese and Simplified Chinese
-    print("Testing Burmese and Simplified Chinese...")
+    #between Burmese and Tibetan
+    print("Testing Burmese and Tibetan...")
     start = translate(inputString, 'my') #translate to Burmese to start
 
-    translations, charAccs, sentenceAccs = compareLangs('my', 'zh', start)
+    translations, charAccs, sentenceAccs = compareLangs('my', 'bo', start)
     avgCharAcc = np.mean(charAccs)
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
+
+    print(translations[9])
+    print(translations[10])
+
+    #between Tibetan and Simplified Chinese
+    print("Testing Tibetan and Simplified Chinese...")
+    start = translate(inputString, 'bo') #translate to Tibetan to start
+
+    translations, charAccs, sentenceAccs = compareLangs('bo', 'zh', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    print(translations[9])
+    print(translations[10])
 
     # Display Results
     results = {'Between languages': ['Simplified and Yue Chinese',  'Yue Chinese and Burmese', 'Burmese and Simplified Chinese'],
@@ -187,6 +206,9 @@ def testAfroAsiaticLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    print(translations[9])
+    print(translations[10])
+
     #between Egyptian Arabic and Hausa
     print("Testing Egyptian Arabic and Hausa...")
     start = translate(inputString, 'arz') #translate to Egyptian Arabic to start
@@ -196,6 +218,9 @@ def testAfroAsiaticLanguages(inputString):
     avgSentenceAcc = np.mean(sentenceAccs)
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
+
+    print(translations[9])
+    print(translations[10])
 
     #between Hausa and Arabic
     print("Testing Hausa and Arabic...")
@@ -207,15 +232,58 @@ def testAfroAsiaticLanguages(inputString):
     avgCharAccs.append(avgCharAcc)
     avgSentenceAccs.append(avgSentenceAcc)
 
+    print(translations[9])
+    print(translations[10])
+
     # Display Results
     results = {'Between languages': ['Arabic and Egyptian Arabic',  'Egyptian Arabic and Hausa', 'Hausa and Arabic'],
                'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
     df = pd.DataFrame(data=results)
     print(df)
+    print(translations)
 
     return df
+
+def testLanguageGroups(inputString):
+    """
+    Tests the most commonly spoken/written language of the Indo-European, Sino-Tibetan, and Afro-Asiatic
+    language groups: English, Simplified Chinese, Arabic
+    """
+    avgCharAccs = []
+    avgSentenceAccs = []
+
+    #between English and Simplified Chinese
+    print("Testing English and Simplified Chinese...")
+    start = translate(inputString, 'en') #translate to English to start
+
+    translations, charAccs, sentenceAccs = compareLangs('en', 'zh', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Simplified Chinese and Simplified Chinese
+    print("Testing Simplified Chinese and Arabic...")
+    start = translate(inputString, 'zh') #translate to Simplified Chinese to start
+
+    translations, charAccs, sentenceAccs = compareLangs('zh', 'ar', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
+
+    #between Arabic and English
+    print("Testing Arabic and English...")
+    start = translate(inputString, 'ar') #translate to Arabic to start
+
+    translations, charAccs, sentenceAccs = compareLangs('ar', 'en', start)
+    avgCharAcc = np.mean(charAccs)
+    avgSentenceAcc = np.mean(sentenceAccs)
+    avgCharAccs.append(avgCharAcc)
+    avgSentenceAccs.append(avgSentenceAcc)
 
 
 testIndoEuropeanLanguages("Life is like a box of chocolates")
 testSinoTibetanLanguages("Life is like a box of chocolates")
 testAfroAsiaticLanguages("Life is like a box of chocolates")
+# testLanguageGroups("Life is like a box of chocolates")
