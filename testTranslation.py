@@ -16,15 +16,7 @@ model = M2M100ForConditionalGeneration.from_pretrained("facebook/nllb-200-distil
 tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
 
 def translate(inputString, outputLang):
-    """NOTE: ADD DOCUMENTATION"""
-    # model_inputs = tokenizer(inputString, return_tensors="pt")
-    # translation = model.generate(**model_inputs, forced_bos_token_id=tokenizer.get_lang_id(outputLang))
-    # return tokenizer.batch_decode(translation, skip_special_tokens=True)
-    # outputLang = str(outputLang)
-    # inputString = str(inputString)
-    # print("inputString:", type(inputString), inputString)
-    # print(type(outputLang))
-    # inputString = str(outputLang) + " " + inputString
+    """Translates a single string into the target language"""
     encoded_hi = tokenizer(inputString, return_tensors="pt")
     generated_tokens = model.generate(**encoded_hi, forced_bos_token_id=tokenizer.convert_tokens_to_ids(outputLang))
     return tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
@@ -50,7 +42,10 @@ def compareSentences(string1, string2):
     return ratio
 
 def compareLangs(lang1, lang2, inputString):
-    """NOTE: ADD DOCUMENTATION"""
+    """
+    Compares the translation between two languages for a given string, returning the translation outputs,
+    list of character level accuracies, and list of semantic accuracies
+    """
 
     charAccs = []
     sentenceAccs = []
@@ -81,7 +76,7 @@ def compareLangs(lang1, lang2, inputString):
 
     return translations, charAccs, sentenceAccs
 
-def plotResults(accuracies):
+def plotResults(charAccs, semanticAccs):
     """
     Plots how the model performed during training (Edited from Slides)
     """
@@ -89,7 +84,11 @@ def plotResults(accuracies):
     plt.figure(figsize=(13,3))
     plt.subplot(121)
     plt.title('Semantic accuracy over Translations')
-    plt.plot(nums, accuracies)
+    plt.plot(nums, semanticAccs)
+    plt.figure(figsize=(13,3))
+    plt.subplot(121)
+    plt.title('Character accuracy over Translations')
+    plt.plot(nums, charAccs)
     plt.show()
 
 def testIndoEuropeanLanguages(inputString):
@@ -112,9 +111,10 @@ def testIndoEuropeanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+    
+    #print translations
+    print(translations)
 
     #between Hindi and Spanish
     print("Testing Hindi and Spanish...")
@@ -127,9 +127,10 @@ def testIndoEuropeanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     #between Spanish and English
     print("Testing Spanish and English...")
@@ -142,9 +143,10 @@ def testIndoEuropeanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     # Display Results
     results = {'Between languages': ['English and Hindi',  'Hindi and Spanish', 'Spanish and English'],
@@ -180,9 +182,10 @@ def testSinoTibetanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+    
+    #print translations
+    print(translations)
 
     #between Burmese and Tibetan
     print("Testing Burmese and Tibetan...")
@@ -195,9 +198,10 @@ def testSinoTibetanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+    
+    #print translations
+    print(translations)
 
     #between Tibetan and Simplified Chinese
     print("Testing Tibetan and Simplified Chinese...")
@@ -210,12 +214,13 @@ def testSinoTibetanLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     # Display Results
-    results = {'Between languages': ['Simplified and Yue Chinese',  'Yue Chinese and Burmese', 'Burmese and Simplified Chinese'],
+    results = {'Between languages': ['Simplified Chinese and Burmese',  'Burmese and Tibetan', 'Tibetan and Simplified Chinese'],
                'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
     df = pd.DataFrame(data=results)
     print(df)
@@ -245,9 +250,10 @@ def testAfroAsiaticLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+    
+    #print translations
+    print(translations)
 
     #between Egyptian Arabic and Hausa
     print("Testing Egyptian Arabic and Hausa...")
@@ -260,9 +266,10 @@ def testAfroAsiaticLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     #between Hausa and Arabic
     print("Testing Hausa and Arabic...")
@@ -275,16 +282,16 @@ def testAfroAsiaticLanguages(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
-    print(translations[9])
-    print(translations[10])
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     # Display Results
     results = {'Between languages': ['Arabic and Egyptian Arabic',  'Egyptian Arabic and Hausa', 'Hausa and Arabic'],
                'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
     df = pd.DataFrame(data=results)
     print(df)
-    print(translations)
 
     return df
 
@@ -307,7 +314,10 @@ def testLanguageGroups(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     #between Simplified Chinese and Simplified Chinese
     print("Testing Simplified Chinese and Arabic...")
@@ -320,7 +330,10 @@ def testLanguageGroups(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     #between Arabic and English
     print("Testing Arabic and English...")
@@ -333,19 +346,30 @@ def testLanguageGroups(inputString):
     avgSentenceAccs.append(avgSentenceAcc)
 
     #plot accuracy over translations
-    plotResults(sentenceAccs)
+    plotResults(charAccs, sentenceAccs)
+
+    #print translations
+    print(translations)
 
     # Display Results
     results = {'Between languages': ['English and Simplified Chinese',  'Simplified Chinese and Arabic', 'Arabic and English'],
                'Char Accuracy': avgCharAccs, 'Semantic Accuracy': avgSentenceAccs}
     df = pd.DataFrame(data=results)
     print(df)
-    print(translations)
 
     return df
 
+def testTranslationSentence(inputString):
+    """ Tests Indo-European, Sino-Tibetan, Afro-Asiatic, and interlanguage group translation for a given input"""
+    testIndoEuropeanLanguages(inputString)
+    testSinoTibetanLanguages(inputString)
+    testAfroAsiaticLanguages(inputString)
+    testLanguageGroups(inputString)
 
-testIndoEuropeanLanguages("Life is like a box of chocolates")
-testSinoTibetanLanguages("Life is like a box of chocolates")
-testAfroAsiaticLanguages("Life is like a box of chocolates")
-testLanguageGroups("Life is like a box of chocolates")
+def main():
+    testTranslationSentence("Peter picked a peck of pickled peppers.")
+    testTranslationSentence("She wore seashells to the seashore.")
+    testTranslationSentence("How much wood could a woodchuck chuck if a woodchuck chuck could chuck wood?")
+
+if __name__=="__main__":
+    main()
